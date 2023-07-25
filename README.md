@@ -37,5 +37,5 @@ You can modify the following constants in the `DigiKalaScraper` class to configu
 The script saves the scraped data to a JSON file with a unique filename based on the category name. The file contains an array of product objects, each with the following fields:
 
 - `url`: The URL of the product.
-- `count`: Number of total likes to this product.
+- `count`: Total number of suggestions to this product.
 - `percentage`: Percentage of how users are satisfied about this product.
