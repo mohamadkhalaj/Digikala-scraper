@@ -1,7 +1,7 @@
 # DigiKala Scraper
 
 This is a Python script that scrapes product data from the [Digikala](https://www.digikala.com/) website. The script uses asyncio and aiohttp to efficiently make HTTP requests and parse the JSON responses.
-
+The script fetches the product data from a specified category URL, sorts the products based on buyer suggestions, and saves the sorted data to a JSON file.
 ## Usage
 
 To run the script, you'll need Python 3.7 or later installed on your system. You can install the required dependencies by running:
