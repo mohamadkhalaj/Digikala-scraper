@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import asyncio
 import json
 import logging
@@ -39,14 +40,20 @@ class DigiKalaScraper:
                     async with session.get(url, timeout=8) as resp:
                         if resp.status == 200:
                             self.TOTAL_SUCCESS += 1
-                            self.logger.info(f"[{self.TOTAL_SUCCESS}] Successful! [200]")
+                            self.logger.info(
+                                f"[{self.TOTAL_SUCCESS}] Successful! [200]"
+                            )
                             return await resp.json()
                         else:
-                            self.logger.warning(f"Request failed with status code {resp.status}. Retrying...")
+                            self.logger.warning(
+                                f"Request failed with status code {resp.status}. Retrying..."
+                            )
                             retries -= 1
                 except asyncio.TimeoutError:
                     self.logger.warning("Request timed out. Retrying...")
                     retries -= 1
+                except aiohttp.client_exceptions.ClientConnectorError as msg:
+                    self.logger.error(msg)
             await asyncio.sleep(0.1)
         self.logger.error("Max retries exceeded. Giving up.")
 
@@ -54,7 +61,9 @@ class DigiKalaScraper:
         return [
             f"https://api.digikala.com/v1/product/{product['id']}/"
             for page in pages_data
-            if page and page.get("status", None) == 200 and len(page.get("data", {}).get("products", []))
+            if page
+            and page.get("status", None) == 200
+            and len(page.get("data", {}).get("products", []))
             for product in page["data"]["products"]
         ]
 
@@ -71,7 +80,9 @@ class DigiKalaScraper:
 
     async def fetch_data(self, session, url_list, fetch_method):
         semaphore = asyncio.Semaphore(value=self.MAX_CONCURRENT_REQUESTS)
-        tasks = [fetch_method(session, url, semaphore, self.MAX_RETRIES) for url in url_list]
+        tasks = [
+            fetch_method(session, url, semaphore, self.MAX_RETRIES) for url in url_list
+        ]
         return await asyncio.gather(*tasks)
 
     async def fetch_pages_data(self, session, page_urls):
@@ -91,7 +102,11 @@ class DigiKalaScraper:
     def save_to_file(self, data, filename):
         with open(filename, "w") as output_json_file:
             json.dump(
-                sorted(data.items(), key=lambda x: (x[1]["count"], x[1]["percentage"]), reverse=True),
+                sorted(
+                    data.items(),
+                    key=lambda x: (x[1]["count"], x[1]["percentage"]),
+                    reverse=True,
+                ),
                 output_json_file,
             )
 
@@ -120,6 +135,8 @@ class DigiKalaScraper:
 
 
 if __name__ == "__main__":
-    logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO
+    )
     scraper = DigiKalaScraper()
     asyncio.run(scraper.main())
